@@ -1,50 +1,56 @@
 #include <iostream>
-#include <stack>
+#include <vector>
+#include <queue>
 using namespace std;
 
-void insertAtBottom(stack<int> &st, int element) {
-    if (st.empty()) {
-        st.push(element);
-    } else {
-        int topElement = st.top();
-        st.pop();
-        insertAtBottom(st, element);
-        st.push(topElement);
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+TreeNode* buildTree(const vector<int>& levelOrder) {
+    if (levelOrder.empty() || levelOrder[0] == -1) return nullptr;
+
+    TreeNode* root = new TreeNode(levelOrder[0]);
+    queue<TreeNode*> q;
+    q.push(root);
+    int i = 1;
+
+    while (!q.empty() && i < levelOrder.size()) {
+        TreeNode* node = q.front();
+        q.pop();
+
+        if (levelOrder[i] != -1) {
+            node->left = new TreeNode(levelOrder[i]);
+            q.push(node->left);
+        }
+        i++;
+
+        if (i < levelOrder.size() && levelOrder[i] != -1) {
+            node->right = new TreeNode(levelOrder[i]);
+            q.push(node->right);
+        }
+        i++;
     }
+    return root;
 }
 
-void reverseStack(stack<int> &st) {
-    if (!st.empty()) {
-        int topElement = st.top();
-        st.pop();
-        reverseStack(st);
-        insertAtBottom(st, topElement);
-    }
+int diameterOfBinaryTree(TreeNode* root, int& diameter) {
+    if (!root) return 0;
+    int leftHeight = diameterOfBinaryTree(root->left, diameter);
+    int rightHeight = diameterOfBinaryTree(root->right, diameter);
+    diameter = max(diameter, leftHeight + rightHeight);
+    return 1 + max(leftHeight, rightHeight);
 }
 
 int main() {
-    stack<int> st;
-    st.push(31);
-    st.push(30);
-    st.push(29);
-    st.push(28);
+    vector<int> levelOrder = {1, 2, 3, 4, 5, -1, -1, -1, -1, 6, 7};
+    TreeNode* root = buildTree(levelOrder);
 
-    cout << "Original stack: ";
-    stack<int> temp = st;
-    while (!temp.empty()) {
-        cout << temp.top() << " ";
-        temp.pop();
-    }
-    cout << endl;
-
-    reverseStack(st);
-
-    cout << "Reversed stack: ";
-    while (!st.empty()) {
-        cout << st.top() << " ";
-        st.pop();
-    }
-    cout << endl;
-
+    int diameter = 0;
+    diameterOfBinaryTree(root, diameter);
+    cout << diameter << endl;
     return 0;
 }
