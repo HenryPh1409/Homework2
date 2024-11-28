@@ -1,29 +1,54 @@
+//Henry-1123561
+//28/11/2024
 #include <iostream>
-#include <stack>
+#include <queue>
 #include <vector>
+#include <string>
 using namespace std;
 
-void printNextGreaterElement(vector<int> &arr) {
-    stack<int> st;
-    vector<int> nge(arr.size(), -1);
+struct Task {
+    string name;
+    int priority;
 
-    for (int i = 0; i < arr.size(); i++) {
-        while (!st.empty() && arr[st.top()] < arr[i]) {
-            nge[st.top()] = arr[i];
-            st.pop();
-        }
-        st.push(i);
+    // Overload the < operator for the priority queue
+    bool operator<(const Task& other) const {
+        return priority < other.priority;
     }
-
-    for (int i = 0; i < arr.size(); i++) {
-        cout << arr[i] << " -> " << nge[i] << endl;
-    }
-}
+};
 
 int main() {
-    vector<int> arr = {4, 5, 2, 25};
-    cout << "Output: " << endl;
-    printNextGreaterElement(arr);
+    priority_queue<Task> pq;
+    int N;
+    cin >> N;
+    for (int i = 0; i < N; ++i) {
+        string command;
+        cin >> command;
+        if (command == "ADD") {
+            string name;
+            int priority;
+            cin >> name >> priority;
+            pq.push({name, priority});
+        } else if (command == "GET") {
+            if (!pq.empty()) {
+                cout << pq.top().name << endl;
+                pq.pop();
+            }
+        }
+    }
+
+    cout << "Remaining tasks: ";
+    vector<Task> remainingTasks;
+    while (!pq.empty()) {
+        remainingTasks.push_back(pq.top());
+        pq.pop();
+    }
+
+    cout << "[";
+    for (int i = 0; i < remainingTasks.size(); ++i) {
+        cout << "('" << remainingTasks[i].name << "', " << remainingTasks[i].priority << ")";
+        if (i < remainingTasks.size() - 1) cout << ", ";
+    }
+    cout << "]" << endl;
 
     return 0;
 }
