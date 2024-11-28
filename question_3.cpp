@@ -1,32 +1,69 @@
+//Henry-1123561
+//28-11-2024
 #include <iostream>
-#include <deque>
+#include <queue>
 #include <vector>
+#include <sstream> 
 using namespace std;
 
-void printFirstNegative(vector<int> &arr, int k) {
-    deque<int> dq;
-    for (int i = 0; i < arr.size(); i++) {
-        if (!dq.empty() && dq.front() == i - k)
-            dq.pop_front();
+struct Element {
+    int value;
+    int arrayIndex;
+    int elementIndex;
 
-        if (arr[i] < 0)
-            dq.push_back(i);
+    bool operator>(const Element& other) const {
+        return value > other.value;
+    }
+};
 
-        if (i >= k - 1) {
-            if (!dq.empty())
-                cout << arr[dq.front()] << " ";
-            else
-                cout << "0 ";
+vector<int> mergeKSortedArrays(vector<vector<int>>& arrays) {
+    priority_queue<Element, vector<Element>, greater<Element>> minHeap;
+    vector<int> result;
+
+    // Insert the first element of each array into the min heap
+    for (int i = 0; i < arrays.size(); ++i) {
+        if (!arrays[i].empty()) {
+            minHeap.push({arrays[i][0], i, 0});
         }
     }
-    cout << endl;
+
+    // Extract the smallest element from the heap and insert the next element from the same array
+    while (!minHeap.empty()) {
+        Element current = minHeap.top();
+        minHeap.pop();
+        result.push_back(current.value);
+
+        if (current.elementIndex + 1 < arrays[current.arrayIndex].size()) {
+            minHeap.push({arrays[current.arrayIndex][current.elementIndex + 1], current.arrayIndex, current.elementIndex + 1});
+        }
+    }
+
+    return result;
 }
 
 int main() {
-    vector<int> arr = {-8, 2, 3, -6, 10};
-    int k = 2;
-    cout << "Output: ";
-    printFirstNegative(arr, k);
+    int K;
+    cin >> K;
+    cin.ignore(); // Ignore the newline after reading K
+    vector<vector<int>> arrays(K);
+
+    for (int i = 0; i < K; ++i) {
+        string line;
+        getline(cin, line); // Read the entire line
+        stringstream ss(line); 
+        int num;
+        while (ss >> num) {
+            arrays[i].push_back(num);
+        }
+    }
+
+    vector<int> mergedArray = mergeKSortedArrays(arrays);
+    cout << "Merged Array: [";
+    for (int i = 0; i < mergedArray.size(); ++i) {
+        cout << mergedArray[i];
+        if (i < mergedArray.size() - 1) cout << ", ";
+    }
+    cout << "]" << endl;
 
     return 0;
 }
